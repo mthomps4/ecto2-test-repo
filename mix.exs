@@ -24,7 +24,6 @@ defmodule EctoTest.Mixfile do
         :logger,
         :poolboy,
         :uuid,
-        :httpoison,
         :absinthe_plug,
         :absinthe_relay,
         :timex

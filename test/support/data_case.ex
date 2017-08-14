@@ -25,15 +25,15 @@ defmodule EctoTest.DataCase do
     end
   end
 
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(EctoTest.Repo)
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(EctoTest.Repo, {:shared, self()})
-    end
-
-    :ok
-  end
+  # setup tags do
+  #   :ok = Ecto.Adapters.SQL.Sandbox.checkout(EctoTest.Repo)
+  #
+  #   unless tags[:async] do
+  #     Ecto.Adapters.SQL.Sandbox.mode(EctoTest.Repo, {:shared, self()})
+  #   end
+  #
+  #   :ok
+  # end
 
   @doc """
   A helper that transform changeset errors to a map of messages.
