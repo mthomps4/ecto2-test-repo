@@ -48,8 +48,8 @@ defmodule EctoTest.Mixfile do
     {:poolboy, ">= 0.0.0"},
     # the mongodb_ecto & phoenix_ecto, both need to require same {:ecto, "~> 2.0"}
     #--REVERTED-- {:phoenix_ecto, "~> 3.2"},
-    #  --NOTREADY-- {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", branch: "ecto-2.1"},
     {:phoenix_ecto, github: "phoenixframework/phoenix_ecto", ref: "v3.0.1"},
+    # {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", branch: "ecto-2.1"},
     {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", branch: "ecto-2"},
     {:ecto, "~> 2.0.0", override: true},
     {:ex_doc, "~> 0.16.1"},

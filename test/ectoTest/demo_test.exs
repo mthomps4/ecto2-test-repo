@@ -4,7 +4,7 @@ defmodule EctoTest.DemoTest do
 
   @valid_entry """
     {
-        "_id": "1234asdf",
+        "_id": "#{Ecto.UUID.generate}",
         "name": "ecto_test1",
         "reviews": [
             {
@@ -26,8 +26,9 @@ defmodule EctoTest.DemoTest do
     }
   """
 
+
   @valid_map_entry %{
-    "_id" => "1234asdf",
+    "_id" => "#{Ecto.UUID.generate}",
     "name" => "ecto_test1",
     "info" => %{
       "days" => %{"week" => [1, 2, 4]},
@@ -38,7 +39,6 @@ defmodule EctoTest.DemoTest do
       %{"_id" => "insideId2", "review" => "needs more", "type" => 2}
       ]
     }
-
 
   describe "testing CRUD" do
     test "cannot create an empty changeset" do
@@ -67,10 +67,38 @@ defmodule EctoTest.DemoTest do
     end
 
     test "Create a new doc" do
+      Repo.delete_all(Demo) # clear DB
       cs = Demo.changeset(%Demo{}, @valid_map_entry)
       assert true == cs.valid?
-      IO.inspect cs
-      IO.inspect Repo.insert(cs)
+      {staus, value} = Repo.insert(cs)
+      assert staus == :ok
+      assert value.info.feeds.ids == ["123", "abc", "xyz"]
+    end
+
+    test "Update a Doc" do
+      Repo.delete_all(Demo) # clear DB
+      cs = Demo.changeset(%Demo{}, @valid_map_entry)
+      assert true == cs.valid?
+      main_doc = Repo.insert!(cs)
+      main_id = main_doc._id
+      doc = Repo.get!(Demo, main_id)
+      # Can only do Embeded Changesets with Primary ID
+      first_review_id = List.first(doc.reviews).id
+      changes = %{
+        "name" => "ecto_changed_name",
+        "info" => %{
+          "days" => %{"week" => [1, 2, 3, 4]},
+          "feeds" => %{"ids" => ["123", "456", "abc", "xyz"], "on" => false}
+          },
+        "reviews" => [
+          %{"id" => first_review_id, "_id" => "insideId", "review" => "something changed", "type" => 3},
+          ]
+        }
+      update_cs = Demo.changeset(doc, changes)
+      IO.inspect update_cs
+      assert 2 == 3
+      # TODO: checking embeded primary_key :string autogenerat:false with Mongo_Ecto 2.1
+      # TODO: Moved to new branch -- 2.1
     end
 
   end
