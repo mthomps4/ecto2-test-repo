@@ -8,12 +8,12 @@ defmodule EctoTest.DemoTest do
         "name": "ecto_test1",
         "reviews": [
             {
-                "_id": "insideId",
+                "_id": "uniq-insideId",
                 "type": 1,
                 "review": "something"
             },
             {
-                "_id": "insideId2",
+                "_id": "uniq-insideId2",
                 "type": 2,
                 "review": "needs more"
             }
@@ -35,8 +35,8 @@ defmodule EctoTest.DemoTest do
       "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}
       },
     "reviews" => [
-      %{"_id" => "insideId", "review" => "something", "type" => 1},
-      %{"_id" => "insideId2", "review" => "needs more", "type" => 2}
+      %{"_id" => "uniq-insideId", "review" => "something", "type" => 1},
+      %{"_id" => "uniq-insideId2", "review" => "needs more", "type" => 2}
       ]
     }
 
@@ -45,7 +45,7 @@ defmodule EctoTest.DemoTest do
       cs = Demo.changeset(%Demo{}, %{})
       assert %Ecto.Changeset{
         valid?: false,
-        errors: [name: {"can't be blank", []}]
+        errors: [name: {"can't be blank", [validation: :required]}]
       } = cs
     end
 
@@ -83,7 +83,6 @@ defmodule EctoTest.DemoTest do
       main_id = main_doc._id
       doc = Repo.get!(Demo, main_id)
       # Can only do Embeded Changesets with Primary ID
-      first_review_id = List.first(doc.reviews).id
       changes = %{
         "name" => "ecto_changed_name",
         "info" => %{
@@ -91,7 +90,7 @@ defmodule EctoTest.DemoTest do
           "feeds" => %{"ids" => ["123", "456", "abc", "xyz"], "on" => false}
           },
         "reviews" => [
-          %{"id" => first_review_id, "_id" => "insideId", "review" => "something changed", "type" => 3},
+          %{"_id" => "uniq-insideId", "review" => "something changed", "type" => 3},
           ]
         }
       update_cs = Demo.changeset(doc, changes)

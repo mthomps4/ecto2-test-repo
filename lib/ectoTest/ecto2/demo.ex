@@ -26,9 +26,9 @@ defmodule ReviewsSchema do
 
   # primary key needed for Array of Changeset
   # Not working on 2.0
-  # @primary_key {:_id, :string, autogenerate: false}
+  @primary_key {:_id, :string, autogenerate: false}
   embedded_schema do
-    field :_id, :string 
+    # field :_id, :string 
     field :type, :integer
     field :review, :string
   end
