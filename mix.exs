@@ -50,7 +50,7 @@ defmodule EctoTest.Mixfile do
     # {:phoenix_ecto, github: "phoenixframework/phoenix_ecto", ref: "v3.0.1"},
     # {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", branch: "ecto-2"},
     {:phoenix_ecto, "~> 3.2"},
-    {:mongodb_ecto, github: "michalmuskala/mongodb_ecto", branch: "ecto-2.1"},
+    {:mongodb_ecto, github: "ankhers/mongodb_ecto", branch: "ecto-2.1"},
     {:ecto, "~> 2.1"},
     {:ex_doc, "~> 0.16.1"},
     {:ecto_enum, "~> 1.0"},

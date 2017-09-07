@@ -26,7 +26,6 @@ defmodule EctoTest.DemoTest do
     }
   """
 
-
   @valid_map_entry %{
     "_id" => "#{Ecto.UUID.generate}",
     "name" => "ecto_test1",
@@ -37,6 +36,19 @@ defmodule EctoTest.DemoTest do
     "reviews" => [
       %{"_id" => "uniq-insideId", "review" => "something", "type" => 1},
       %{"_id" => "uniq-insideId2", "review" => "needs more", "type" => 2}
+      ]
+    }
+
+  @bad_review_type_entry %{
+    "_id" => "#{Ecto.UUID.generate}",
+    "name" => "ecto_test1",
+    "info" => %{
+      "days" => %{"week" => [1, 2, 4]},
+      "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}
+      },
+    "reviews" => [
+      %{"_id" => "uniq-insideId", "review" => "something", "type" => "string"},
+      %{"_id" => "uniq-insideId2", "review" => "needs more", "type" => "string2"}
       ]
     }
 
@@ -66,6 +78,14 @@ defmodule EctoTest.DemoTest do
       assert true == cs.valid?
     end
 
+    test "create a bad nested changeset -- MAP" do
+      cs = Demo.changeset(%Demo{}, @bad_review_type_entry)
+      first_review = List.first(cs.changes.reviews)
+      assert true == cs.changes.info.valid?
+      assert false == first_review.valid?
+      assert false == cs.valid?
+    end
+
     test "Create a new doc" do
       Repo.delete_all(Demo) # clear DB
       cs = Demo.changeset(%Demo{}, @valid_map_entry)
@@ -75,7 +95,7 @@ defmodule EctoTest.DemoTest do
       assert value.info.feeds.ids == ["123", "abc", "xyz"]
     end
 
-    test "Update a Doc" do
+    test "Update a Doc -- embeds_one" do
       Repo.delete_all(Demo) # clear DB
       cs = Demo.changeset(%Demo{}, @valid_map_entry)
       assert true == cs.valid?
@@ -84,20 +104,37 @@ defmodule EctoTest.DemoTest do
       doc = Repo.get!(Demo, main_id)
       # Can only do Embeded Changesets with Primary ID
       changes = %{
-        "name" => "ecto_changed_name",
-        "info" => %{
-          "days" => %{"week" => [1, 2, 3, 4]},
-          "feeds" => %{"ids" => ["123", "456", "abc", "xyz"], "on" => false}
+        info: %{
+          days: %{week: [1, 2, 3, 4]},
+          feeds: %{ids: ["123", "456"], on: false}
           },
+        }
+      updated_cs = Demo.changeset(doc, changes)
+      Repo.update!(updated_cs)
+      updated_doc = Repo.get!(Demo, main_id)
+      assert updated_doc.info == %InfoSchema{
+                                    days: %DaysConfig{week: [1, 2, 3, 4]},
+                                    feeds: %FeedsConfig{ids: ["123", "456"], on: false}
+                                  }
+    end
+
+    test "Update a Doc -- embeds_many" do
+      Repo.delete_all(Demo) # clear DB
+      cs = Demo.changeset(%Demo{}, @valid_map_entry)
+      assert true == cs.valid?
+      main_doc = Repo.insert!(cs)
+      main_id = main_doc._id
+      doc = Repo.get!(Demo, main_id)
+      # Can only do Embeded Changesets with Primary ID
+      changes = %{
         "reviews" => [
-          %{"_id" => "uniq-insideId", "review" => "something changed", "type" => 3},
+          %{"_id" => "uniq-insideId", "review" => "changed-something", "type" => 95},
           ]
         }
-      update_cs = Demo.changeset(doc, changes)
-      IO.inspect update_cs
-      assert 2 == 3
-      # TODO: checking embeded primary_key :string autogenerat:false with Mongo_Ecto 2.1
-      # TODO: Moved to new branch -- 2.1
+      updated_cs = Demo.changeset(doc, changes)
+      Repo.update!(updated_cs)
+      updated_doc = Repo.get!(Demo, main_id)
+      assert updated_doc.reviews == 2
     end
 
   end

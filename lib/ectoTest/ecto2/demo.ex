@@ -7,7 +7,7 @@ defmodule EctoTest.Demo do
   schema "ecto" do
     field :name, :string
     embeds_many :reviews, ReviewsSchema
-    embeds_one :info, InfoSchema
+    embeds_one :info, InfoSchema, on_replace: :delete
   end
 
   def changeset(%Demo{} = demo, attrs) do
@@ -24,11 +24,8 @@ defmodule ReviewsSchema do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # primary key needed for Array of Changeset
-  # Not working on 2.0
   @primary_key {:_id, :string, autogenerate: false}
   embedded_schema do
-    # field :_id, :string
     field :type, :integer
     field :review, :string
   end
@@ -44,7 +41,7 @@ defmodule InfoSchema do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # @primary_key false ECTO2.1+ Only
+  @primary_key false
   embedded_schema do
     embeds_one :feeds, FeedsConfig
     embeds_one :days, DaysConfig
@@ -62,7 +59,7 @@ defmodule FeedsConfig do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # @primary_key false ECTO2.1+ Only
+  @primary_key false
   embedded_schema do
     field :on, :boolean
     field :ids, {:array, :string}
@@ -78,7 +75,7 @@ defmodule DaysConfig do
   use Ecto.Schema
   import Ecto.Changeset
 
-  # @primary_key false ECTO2.1+ Only
+  @primary_key false
   embedded_schema do
     field :week, {:array, :integer}
   end
