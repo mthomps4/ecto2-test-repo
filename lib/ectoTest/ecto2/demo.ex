@@ -16,7 +16,7 @@ defmodule EctoTest.Demo do
     |> unique_constraint(:_id)
     |> validate_required([:name])
     |> cast_embed(:reviews)
-    |> cast_embed(:info)
+    |> cast_embed(:info, required: true)
   end
 end
 
@@ -52,6 +52,7 @@ defmodule InfoSchema do
     |> cast(attrs, [])
     |> cast_embed(:feeds)
     |> cast_embed(:days)
+    |> validate_required([:feeds, :days])
   end
 end
 
@@ -68,6 +69,7 @@ defmodule FeedsConfig do
   def changeset(%FeedsConfig{} = feeds, attrs) do
     feeds
     |> cast(attrs, [:on, :ids])
+    |> validate_required([:on, :ids])
   end
 end
 
@@ -83,6 +85,7 @@ defmodule DaysConfig do
   def changeset(%DaysConfig{} = days, attrs) do
     days
     |> cast(attrs, [:week])
+    |> validate_required([:week])
   end
 end
 
