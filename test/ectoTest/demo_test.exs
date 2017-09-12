@@ -249,14 +249,14 @@ defmodule EctoTest.DemoTest do
 
       assert length(Repo.all(query2)) == 2
 
-      ##TODO NOT READY IN MONGO_ECTO BRANCH 
-      # query =
-      #   from a in Demo,
-      #   where: [_id: "simpleID"],
-      #   or_where: [_id: "22"],
-      #   select: a
+      ##TODO NOT READY IN MONGO_ECTO BRANCH
+      query =
+        from a in Demo,
+        where: fragment([_id: ["$or": ["simpleID", "22"]]]),
+        # or_where: [_id: "22"],
+        select: a
       #
-      # assert length(Repo.all(query)) == 2
+      assert length(Repo.all(query)) == 2
     end
 
 
