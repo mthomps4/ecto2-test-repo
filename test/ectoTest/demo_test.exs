@@ -288,6 +288,16 @@ defmodule EctoTest.DemoTest do
                         "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}},
             "name" => "simple_entry"}
           ]
+      z = Mongo.Ecto.command(Repo, find: "ecto", limit: 1, skip: 2)
+      assert z["cursor"]["firstBatch"] ==
+        [
+          %{"_id" => "22",
+            "info" => %{"days" => %{"week" => [1, 2, 4]},
+                        "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}},
+            "name" => "ecto_test1"}
+        ]
+
+
 
     end
 
