@@ -250,13 +250,45 @@ defmodule EctoTest.DemoTest do
       assert length(Repo.all(query2)) == 2
 
       ##TODO NOT READY IN MONGO_ECTO BRANCH
-      query =
-        from a in Demo,
-        where: fragment([_id: ["$or": ["simpleID", "22"]]]),
-        # or_where: [_id: "22"],
-        select: a
-      #
-      assert length(Repo.all(query)) == 2
+      # query =
+      #   from a in Demo,
+      #   where: fragment([_id: "simpleID"]),
+      #   or_where: fragment([_id: "22"]),
+      #   select: a
+      # #
+      # assert length(Repo.all(query)) == 2
+    end
+
+    test "Mongo Command" do
+      Repo.delete_all(Demo) # clear DB
+      cs = Demo.changeset(%Demo{}, @valid_map_entry)
+      Repo.insert!(cs)
+      cs2 = Demo.changeset(%Demo{}, @simple_entry)
+      Repo.insert!(cs2)
+      cs3 = Demo.changeset(%Demo{}, %{
+        _id: "22",
+        name: "ecto_test1",
+        info: %{
+          days: %{week: [1, 2, 4]},
+          feeds: %{ids: ["123", "abc", "xyz"], on: true}
+          }
+      })
+      Repo.insert!(cs3)
+      x = Mongo.Ecto.command(Repo, find: "ecto", filter: [_id: ["$in": ["22", "simpleID"]]])
+      assert length(x["cursor"]["firstBatch"]) == 2
+      y = Mongo.Ecto.command(Repo, find: "ecto", filter: ["$or": [[_id: "22"], [_id: "simpleID"]]])
+      assert y["cursor"]["firstBatch"] ==
+         [
+          %{"_id" => "22",
+            "info" => %{"days" => %{"week" => [1, 2, 4]},
+                        "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}},
+            "name" => "ecto_test1"},
+          %{"_id" => "simpleID",
+            "info" => %{"days" => %{"week" => [1, 2, 4]},
+                        "feeds" => %{"ids" => ["123", "abc", "xyz"], "on" => true}},
+            "name" => "simple_entry"}
+          ]
+
     end
 
 
